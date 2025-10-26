@@ -1,15 +1,16 @@
-// lib/views/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
 // Asegúrate de importar tu archivo de colores
-import '../core/theme/app_colors.dart'; // Ajusta la ruta si es necesario
+import '../core/theme/app_colors.dart'; 
+// Importamos la pantalla de información personal (asumiendo que la usarás después del registro)
+// import 'package:medi_app/views/personal_info_screen.dart'; // Descomenta si tienes esta pantalla
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
@@ -23,6 +24,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false; // Para el estado de carga del botón
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   void register() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -35,16 +44,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
+        
         if (mounted) {
+          // Si el registro es exitoso, navegamos al Login (o a PersonalInfoScreen si existe)
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Registro exitoso, por favor inicia sesión')),
           );
-          Navigator.pop(context);
+          Navigator.pop(context); 
+          // O navega a la siguiente pantalla para completar perfil:
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalInfoScreen()));
         }
+
       } catch (e) {
         if (mounted) {
+          String errorMessage = 'Registro fallido. Verifica tus datos.';
+          // Puedes añadir manejo de errores específicos de Firebase aquí:
+          if (e.toString().contains('email-already-in-use')) {
+             errorMessage = 'Este correo ya está registrado.';
+          } else if (e.toString().contains('weak-password')) {
+             errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+          }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registro fallido: ${e.toString()}')),
+            SnackBar(content: Text(errorMessage)),
           );
         }
       } finally {
@@ -69,11 +90,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 1. Logo y Título
-                const Icon(
-                  Icons.medication_liquid_outlined, // Icono de estetoscopio del diseño
-                  color: AppColors.primaryBlue,
-                  size: 60,
+                // 1. Logo (Usando Image.asset)
+                Image.asset(
+                  'lib/public/logo_mediapp.png', // <-- RUTA DE TU LOGO
+                  height: 100, 
+                  width: 100,
+                  alignment: Alignment.center,
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -253,7 +275,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide.none, // Opcional: para un look más moderno
+          borderSide: BorderSide.none, 
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),

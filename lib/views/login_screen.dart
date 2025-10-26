@@ -1,4 +1,3 @@
-// lib/views/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
@@ -9,7 +8,7 @@ class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
@@ -20,6 +19,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   // Estado para controlar la visibilidad de la contraseña
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void login() async {
     if (_formKey.currentState!.validate()) {
@@ -36,8 +42,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Si el inicio de sesión es exitoso, Riverpod manejará la navegación a HomeScreen.
       } catch (e) {
         if (mounted) {
+          String errorMessage = 'Error de inicio de sesión. Verifica tu correo y contraseña.';
+          // Aquí puedes añadir manejo de errores específicos de Firebase, ej: 'user-not-found', 'wrong-password'
+          
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error de inicio de sesión: ${e.toString()}')),
+            SnackBar(content: Text(errorMessage)),
           );
         }
       } finally {
@@ -63,10 +72,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 1. Logo y Título
-                const Icon(
-                  Icons.medication_liquid_outlined, 
-                  color: AppColors.primaryBlue,
-                  size: 60,
+                Image.asset(
+                  'lib/public/logo_mediapp.png', // <-- Se usa la imagen del asset
+                  height: 100, 
+                  width: 100,
+                  alignment: Alignment.center,
                 ),
                 const SizedBox(height: 10),
                 const Text(
