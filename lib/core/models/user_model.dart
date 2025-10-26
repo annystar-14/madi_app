@@ -19,6 +19,8 @@ class UserModel {
     this.weight,
   });
 
+
+
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
       'email': email,
