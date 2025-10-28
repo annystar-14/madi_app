@@ -12,7 +12,7 @@ void main() async {
   );
 
   runApp(
-    const ProviderScope(  // ✅ Debe ser aquí
+    const ProviderScope(
       child: MyApp(),
     ),
   );

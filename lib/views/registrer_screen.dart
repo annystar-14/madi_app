@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
-// Asegúrate de importar tu archivo de colores
 import '../core/theme/app_colors.dart'; 
 // Importamos la pantalla de información personal (asumiendo que la usarás después del registro)
 // import 'package:medi_app/views/personal_info_screen.dart'; // Descomenta si tienes esta pantalla
@@ -81,187 +80,194 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightBackground, // Fondo claro
+      backgroundColor: AppColors.lightBackground, 
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. Logo (Usando Image.asset)
-                Image.asset(
-                  'lib/public/logo_mediapp.png', // <-- RUTA DE TU LOGO
-                  height: 100, 
-                  width: 100,
-                  alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Logo y subtítulos
+              Image.asset(
+                'lib/public/logo.png',
+                height: 100, 
+                width: 100,
+                alignment: Alignment.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'MediApp',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryBlue,
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'MediApp',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryBlue,
-                  ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'Orientación en síntomas respiratorios',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
                 ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Orientación en Síntomas Respiratorios',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                const Text(
-                  'Registrarse',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 20),
+              ),
+              const SizedBox(height: 40),
 
-                // 2. Campo Correo Electrónico
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration.copyWith(
-                    labelText: 'Correo Electrónico',
-                    hintText: 'tu@email.com',
-                    prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty || !value.contains('@')) {
-                      return 'Ingresa un correo válido';
-                    }
-                    return null;
-                  },
+              // 2. Tarjeta con el Formulario de Registro
+              Card(
+                color: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
                 ),
-                const SizedBox(height: 20),
-
-                // 3. Campo Contraseña
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  decoration: _inputDecoration.copyWith(
-                    labelText: 'Contraseña',
-                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                        color: AppColors.textSecondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // 4. Campo Verificar Contraseña
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: !_isConfirmPasswordVisible,
-                  decoration: _inputDecoration.copyWith(
-                    labelText: 'Verificar Contraseña',
-                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                        color: AppColors.textSecondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value != _passwordController.text) {
-                      return 'Las contraseñas no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 30),
-
-                // 5. Botón Registrar
-                ElevatedButton(
-                  onPressed: _isLoading ? null : register,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentTurquoise, // Color turquesa
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Bordes suaves
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form( 
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Registrarse',
+                          textAlign: TextAlign.center, 
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryBlue, 
                           ),
-                        )
-                      : const Text(
-                          'Registrar',
-                          style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                         ),
-                ),
-                const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                // 6. Texto "¿Ya tienes cuenta?"
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '¿Ya tienes cuenta?',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Vuelve a la pantalla de Login
-                      },
-                      child: const Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.bold,
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: 'Correo electrónico',
+                            hintText: 'ejemplo@email.com',
+                            prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty || !value.contains('@')) {
+                              return 'Ingresa un correo válido';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
+                        const SizedBox(height: 20),
 
-                // 7. Nota Legal
-                const Text(
-                  'Tus datos están protegidos por excepción de nivel médico',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: !_isPasswordVisible,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: 'Contraseña',
+                            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              },
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'La contraseña debe tener al menos 6 caracteres';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: !_isConfirmPasswordVisible,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: 'Verificar contraseña',
+                            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                });
+                              },
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value != _passwordController.text) {
+                              return 'Las contraseñas no coinciden';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Botón Registrar
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentTurquoise, 
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10), 
+                            ),
+                            elevation: 5, 
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : const Text(
+                                  'Registrarse',
+                                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '¿Ya tienes cuenta?',
+                              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Vuelve a la pantalla de Login
+                              },
+                              child: const Text(
+                                'Iniciar sesión',
+                                style: TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

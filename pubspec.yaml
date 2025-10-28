@@ -26,8 +26,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # 1. 'assets:' debe tener dos espacios de indentación bajo 'flutter:'
   assets: 
-    # 2. '- public/' debe tener cuatro espacios de indentación.
-    - lib/public/ 
-    # Asegúrate de usar ESPACIOS, no tabuladores.
+    - lib/public/
+

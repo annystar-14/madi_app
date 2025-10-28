@@ -1,11 +1,9 @@
-// lib/core/theme/app_colors.dart
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Colores principales del diseño
-  static const Color primaryBlue = Color(0xFF1E88E5); // Un azul vibrante
-  static const Color accentTurquoise = Color(0xFF00BCD4); // El turquesa del botón
-  static const Color lightBackground = Color(0xFFF5F7FA); // Fondo blanco/gris muy claro
+  static const Color primaryBlue = Color.fromARGB(255, 26, 114, 192);
+  static const Color accentTurquoise = Color.fromARGB(255, 5, 176, 199); // El turquesa del botón
+  static const Color lightBackground = Color.fromARGB(255, 230, 235, 245); // Fondo blanco/gris muy claro
 
   // Colores para textos
   static const Color textPrimary = Color(0xFF424242);
@@ -14,4 +12,14 @@ class AppColors {
   // Colores para campos de texto
   static const Color inputBorder = Color(0xFFE0E0E0);
   static const Color inputFill = Colors.white;
+
+  static const Gradient blueGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [
+    Color(0xFF0D47A1), // Azul profundo
+    Color.fromARGB(255, 31, 138, 209),
+    Color.fromARGB(255, 24, 177, 197), // Turquesa vibrante
+  ],
+);
 }
