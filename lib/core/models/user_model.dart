@@ -1,7 +1,7 @@
 class UserModel {
   int? id; // ID interno autoincremental
   String email;
-  String password;
+  //String password;
   String? name;
   String? lastName;
   String? gender;
@@ -11,7 +11,7 @@ class UserModel {
   UserModel({
     this.id,
     required this.email,
-    required this.password,
+    //required this.password,
     this.name,
     this.lastName,
     this.gender,
@@ -24,7 +24,7 @@ class UserModel {
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
       'email': email,
-      'password': password,
+      //'password': password,
       'name': name,
       'lastName': lastName,
       'gender': gender,
@@ -39,7 +39,7 @@ class UserModel {
     return UserModel(
       id: map['id'],
       email: map['email'],
-      password: map['password'],
+      //password: map['password'],
       name: map['name'],
       lastName: map['lastName'],
       gender: map['gender'],

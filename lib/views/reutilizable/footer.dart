@@ -143,7 +143,7 @@ class AppBottomNavBar extends StatelessWidget {
               itemIndex: 2,
             ),
             _buildNavItem(
-              icon: Icons.person_outline,
+              icon: Icons.account_circle_outlined,
               label: 'Perfil',
               itemIndex: 3,
             ),

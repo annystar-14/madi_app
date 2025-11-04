@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
+import 'package:medi_app/views/home_screen.dart';
 import 'package:medi_app/views/registrer_screen.dart';
 import '../core/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -39,14 +42,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        // Si el inicio de sesión es exitoso, Riverpod manejará la navegación a HomeScreen.
+    
       } catch (e) {
-        if (mounted) {
-          String errorMessage = 'Error de inicio de sesión. Verifica tu correo y contraseña.';
-          // Aquí puedes añadir manejo de errores específicos de Firebase, ej: 'user-not-found', 'wrong-password'
-          
+        await Future.delayed(const Duration(milliseconds: 300));
+        final user = ref.read(authStateProvider);
+        if (user == null && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
+            const SnackBar(content: Text('Error de inicio de sesión. Verifica tu correo y contraseña.')),
           );
         }
       } finally {
@@ -61,6 +63,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    ref.listen<User?>(authStateProvider, (prev, next) {
+    if (next != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    }
+  });
+
     return Scaffold(
       backgroundColor: AppColors.lightBackground, // Fondo claro
       body: Center( 

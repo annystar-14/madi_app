@@ -19,6 +19,7 @@ class AuthNotifier extends StateNotifier<User?> {
 
   Future<void> signIn(String email, String password) async {
     await _authService.signIn(email, password);
+    state = FirebaseAuth.instance.currentUser;
   }
 
   Future<void> signUp(String email, String password) async {

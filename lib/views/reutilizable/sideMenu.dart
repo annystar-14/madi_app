@@ -5,6 +5,7 @@ import 'package:medi_app/core/theme/app_colors.dart';
 import 'package:medi_app/views/aprender_screen.dart';
 import 'package:medi_app/views/historial_screen.dart';
 import 'package:medi_app/views/home_screen.dart';
+import 'package:medi_app/views/login_screen.dart';
 import 'package:medi_app/views/perfil_screen.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -67,14 +68,13 @@ class AppDrawer extends ConsumerWidget {
                 },
               ),
               
-              // Espaciador para empujar lo demás al fondo
               const Spacer(),
 
               const Divider(color: Colors.white38, indent: 20, endIndent: 20),
               
               _buildDrawerItem(
                 context: context,
-                icon: Icons.person_outline,
+                icon: Icons.account_circle_outlined,
                 text: 'Mi perfil',
                 onTap: () {
                   _navigateToScreen(context, const PerfilScreen());
@@ -93,8 +93,12 @@ class AppDrawer extends ConsumerWidget {
                 context: context,
                 icon: Icons.logout,
                 text: 'Cerrar sesión',
-                onTap: () {
-                  ref.read(authStateProvider.notifier).signOut();
+                onTap: () async {
+                  await ref.read(authStateProvider.notifier).signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 20),

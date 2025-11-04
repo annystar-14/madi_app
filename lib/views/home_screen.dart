@@ -5,38 +5,75 @@ import './reutilizable/header.dart';
 import './reutilizable/footer.dart';
 import 'package:medi_app/views/reutilizable/sideMenu.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class HomeScreen extends StatelessWidget {
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Función para obtener el primer nombre del usuario desde Firestore
+  Future<String> _fetchFirstName() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return 'Usuario';
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        // Obtenemos el nombre completo
+        final fullName = doc.data()!['nombre'] as String? ?? 'Usuario';
+        
+        // Tomamos solo la primera palabra (el primer nombre)
+        return fullName.trim().split(' ')[0];
+      }
+      return 'Usuario'; // Si el documento no existe
+    } catch (e) {
+      debugPrint('Error al obtener el nombre del usuario: $e');
+      return 'Usuario'; // En caso de error
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // final user = ref.watch(authStateProvider).user;
-    // final userName = user?.displayName ?? 'Usuario';
-    const userName = 'Usuario'; // Temporalmente
+
     // Aquí puedes tomar el estado real desde un provider
     final String estadoActual = "Sin sintomas registrados";
 
-    return Scaffold(
-      backgroundColor: AppColors.lightBackground,
-      drawer: const AppDrawer(), 
-      
-      // 3. Usamos el widget Header como AppBar
-      appBar: Header(
-        isHomeScreen: true,
-        userName: userName,
-        statusText: estadoActual,
-        onNotificationPressed: () {
-          // Lógica para ir a Notificaciones
-        },
-        onStatusCardPressed: () {
-          // Lógica para ir al historial de síntomas
-        },
-      ),
+    return FutureBuilder<String>(
+      future: _fetchFirstName(),
+      builder: (context, snapshot) {
+        final String userName = snapshot.data ?? 'Usuario';
 
-      body: _buildHomeBody(),
+        return Scaffold(
+          backgroundColor: AppColors.lightBackground,
+          drawer: const AppDrawer(), 
+          
+          appBar: Header(
+            isHomeScreen: true,
+            userName: userName,
+            statusText: estadoActual,
+            onStatusCardPressed: () {
+              // Lógica para ir al historial de síntomas
+            },
+          ),
 
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+          body: _buildHomeBody(),
+
+          bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+        );
+      },
     );
   }
 

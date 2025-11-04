@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medi_app/views/perfil_screen.dart';
 import '../../core/theme/app_colors.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
@@ -9,7 +10,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   final String? statusText;
   final VoidCallback? onStatusCardPressed;
   final String? title;
-  final VoidCallback? onNotificationPressed;
+  final Widget? leadingIcon;
 
   // --- ALTURAS ---
   static const double _homeHeaderHeight = 200.0; // Altura para Home
@@ -22,7 +23,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     this.statusText,
     this.onStatusCardPressed,
     this.title,
-    this.onNotificationPressed,
+    this.leadingIcon, 
   }) : super(key: key);
 
   @override
@@ -97,7 +98,20 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       children: [
         Row(
           children: [
-            const Icon(CupertinoIcons.person_crop_circle, color: Colors.white, size: 40),
+             InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PerfilScreen()),
+                );
+              },
+              child: const Icon(
+                Icons.account_circle_outlined,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,14 +148,22 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Título
-        Text(
-          title ?? 'MediApp',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        Row(
+          children: [
+            if (leadingIcon != null) // Mostrar icono si existe
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: leadingIcon!,
+              ),
+            Text(
+              title ?? 'MediApp',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
         // Iconos
         _buildActionIcons(context),
@@ -153,10 +175,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          icon: const Icon(Icons.notifications_none_outlined, color: Colors.white, size: 33),
-          onPressed: onNotificationPressed ?? () {},
-        ),
         Builder(
           builder: (BuildContext innerContext) {
             return IconButton(

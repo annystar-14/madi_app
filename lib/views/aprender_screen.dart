@@ -14,11 +14,12 @@ class AprenderScreen extends StatelessWidget {
       drawer: const AppDrawer(),
       
       appBar: Header(
-     
-        title: 'Aprender', // Título para el header simple
-        onNotificationPressed: () {
-          // Lógica para notificaciones
-        },
+        title: 'Aprender',
+        leadingIcon: Icon(
+          Icons.book_outlined,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
       
       body: const Center(

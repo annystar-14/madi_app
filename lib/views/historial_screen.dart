@@ -14,11 +14,12 @@ class HistorialScreen extends StatelessWidget {
       drawer: const AppDrawer(),
       
       appBar: Header(
-     
-        title: 'Historial', // Título para el header simple
-        onNotificationPressed: () {
-          // Lógica para notificaciones
-        },
+        title: 'Historial',
+        leadingIcon: Icon(
+          Icons.history,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
       
       body: const Center(

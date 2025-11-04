@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
+import 'package:medi_app/views/personal_info_screen.dart';
 import '../core/theme/app_colors.dart'; 
-// Importamos la pantalla de información personal (asumiendo que la usarás después del registro)
-// import 'package:medi_app/views/personal_info_screen.dart'; // Descomenta si tienes esta pantalla
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -44,38 +44,52 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _passwordController.text.trim(),
         );
         
-        if (mounted) {
-          // Si el registro es exitoso, navegamos al Login (o a PersonalInfoScreen si existe)
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registro exitoso, por favor inicia sesión')),
-          );
-          Navigator.pop(context); 
-          // O navega a la siguiente pantalla para completar perfil:
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalInfoScreen()));
-        }
-
-      } catch (e) {
-        if (mounted) {
-          String errorMessage = 'Registro fallido. Verifica tus datos.';
-          // Puedes añadir manejo de errores específicos de Firebase aquí:
-          if (e.toString().contains('email-already-in-use')) {
-             errorMessage = 'Este correo ya está registrado.';
-          } else if (e.toString().contains('weak-password')) {
-             errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+        } catch (e) {
+      // Espera un momento y verifica si el usuario fue autenticado
+      await Future.delayed(const Duration(milliseconds: 300));
+      final user = ref.read(authStateProvider);
+      if (user == null && mounted) {
+        String errorMessage = 'Registro fallido. Verifica tus datos.';
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'email-already-in-use':
+              errorMessage = 'Este correo ya está registrado.';
+              break;
+            case 'weak-password':
+              errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+              break;
+            case 'invalid-email':
+              errorMessage = 'El formato del correo electrónico no es válido.';
+              break;
+            case 'network-request-failed':
+              errorMessage = 'Error de conexión. Verifica tu internet.';
+              break;
+            default:
+              errorMessage = 'Error durante el registro: ${e.message}';
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
         }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      //Si el usuario fue autenticado, redirige
+      final user = ref.read(authStateProvider);
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const PersonalInfoScreen()),
+        );
       }
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,252 +1,268 @@
-/*import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:medi_app/core/models/user_model.dart';
-import 'package:medi_app/core/services/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medi_app/views/home_screen.dart';
+import '../core/theme/app_colors.dart'; 
 
-class PersonalInfoScreen extends ConsumerStatefulWidget {
-  final String userId;
-  const PersonalInfoScreen({Key? key, required this.userId}) : super(key: key);
+class PersonalInfoScreen extends StatefulWidget {
+  const PersonalInfoScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<PersonalInfoScreen> createState() => _PersonalInfoScreenState();
+  State<PersonalInfoScreen> createState() => _PersonalInfoScreenState();
 }
 
-class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
-  int currentStep = 0;
-  final UserInfo info = UserInfo();
+class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nombreController = TextEditingController();
+  final _apellidosController = TextEditingController();
+  final _fechaController = TextEditingController();
+  final _telefonoController = TextEditingController();
+  bool _isSaving = false;
+  DateTime? _selectedDate;
 
-  void _nextStep() {
-    setState(() {
-      currentStep++;
-    });
-  }
-
-  void _previousStep() {
-    setState(() {
-      currentStep--;
-    });
-  }
-
-  Future<void> _finishRegistration(UserInfo info) async {
-    final authService = AuthService();
+  Future<void> guardarDatos() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
 
     try {
-      // Guardar los datos personales en SQLite
-      await authService.savePersonalInfo(
-        info.userId!,
-        UserModel(
-          email: info.userId!,
-          name: info.name,
-          lastName: info.surname,
-          gender: info.gender,
-        ),
-      );
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).set({
+          'nombre': _nombreController.text.trim(),
+          'apellidos': _apellidosController.text.trim(),
+          'fecha_nacimiento': _selectedDate,
+          'telefono': _telefonoController.text.trim(),
+          'correo': user.email,
+          'creadoEn': DateTime.now(),
+        });
+      }
 
-      print('✅ Datos personales guardados en SQLite para ${info.userId}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Datos personales guardados correctamente')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     } catch (e) {
-      print('⚠️ Error al guardar datos personales en SQLite: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al guardar datos: $e')),
+      );
+    } finally {
+      setState(() => _isSaving = false);
     }
-
-    // Ir al Home después del registro
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-      (Route<dynamic> route) => false,
-    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final steps = [
-      PersonalInfoStep1(
-        info: info,
-        onNext: _nextStep,
-      ),
-      PersonalInfoStep2(
-        info: info,
-        onNext: _nextStep,
-        onBack: _previousStep,
-      ),
-      PersonalInfoStep3(
-        info: info,
-        onFinish: () {
-          info.userId = widget.userId;
-          _finishRegistration(info);
-        },
-        onBack: _previousStep,
-      ),
-    ];
+Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(), // No permitir fechas futuras para nacimiento
+      helpText: 'Selecciona tu fecha de nacimiento',
+      confirmText: 'Seleccionar',
+      cancelText: 'Cancelar',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primaryBlue,
+              onPrimary: Colors.white,
+              onSurface: AppColors.textSecondary,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryBlue,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
 
+    if (picked != null) {
+      // Formatear la fecha a 'dd/mm/aaaa' para el controlador de texto
+      setState(() {
+        _selectedDate = picked;
+        _fechaController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+      });
+    }
+  }
+
+@override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Información personal'),
-        centerTitle: true,
-      ),
-      body: steps[currentStep],
-    );
-  }
-}
-
-/// Modelo temporal para recopilar los datos del usuario antes de guardarlos
-class UserInfo {
-  String? userId;
-  String name = '';
-  String surname = '';
-  String gender = '';
-  double height = 0;
-  double weight = 0;
-}
-
-/// --- PASO 1: Nombre y Apellido ---
-class PersonalInfoStep1 extends StatelessWidget {
-  final UserInfo info;
-  final VoidCallback onNext;
-
-  const PersonalInfoStep1({Key? key, required this.info, required this.onNext})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final nameController = TextEditingController(text: info.name);
-    final surnameController = TextEditingController(text: info.surname);
-
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Paso 1 de 3', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(labelText: 'Nombre'),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: surnameController,
-            decoration: const InputDecoration(labelText: 'Apellido'),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              info.name = nameController.text;
-              info.surname = surnameController.text;
-              onNext();
-            },
-            child: const Text('Siguiente'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// --- PASO 2: Género ---
-class PersonalInfoStep2 extends StatelessWidget {
-  final UserInfo info;
-  final VoidCallback onNext;
-  final VoidCallback onBack;
-
-  const PersonalInfoStep2({
-    Key? key,
-    required this.info,
-    required this.onNext,
-    required this.onBack,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String? selectedGender = info.gender;
-
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Paso 2 de 3', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          DropdownButtonFormField<String>(
-            value: selectedGender.isNotEmpty ? selectedGender : null,
-            items: const [
-              DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
-              DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
-              DropdownMenuItem(value: 'Otro', child: Text('Otro')),
-            ],
-            onChanged: (value) {
-              info.gender = value ?? '';
-            },
-            decoration: const InputDecoration(labelText: 'Género'),
-          ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: AppColors.lightBackground, 
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              OutlinedButton(onPressed: onBack, child: const Text('Atrás')),
-              ElevatedButton(onPressed: onNext, child: const Text('Siguiente')),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+              // 1. Logo y subtítulos
+              Image.asset(
+                'lib/public/logo.png',
+                height: 100, 
+                width: 100,
+                alignment: Alignment.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'MediApp',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'Registro de información personal',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 40),
 
-/// --- PASO 3: Altura y Peso ---
-class PersonalInfoStep3 extends StatelessWidget {
-  final UserInfo info;
-  final VoidCallback onFinish;
-  final VoidCallback onBack;
+              // 2. Tarjeta con el Formulario
+              Card(
+                color: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form( 
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Datos personales',
+                          textAlign: TextAlign.center, 
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryBlue, 
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
-  const PersonalInfoStep3({
-    Key? key,
-    required this.info,
-    required this.onFinish,
-    required this.onBack,
-  }) : super(key: key);
+                        TextFormField(
+                          controller: _nombreController,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: 'Nombre',
+                            hintText: 'Tu nombre',
+                            prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                          ),
+                          validator: (v) => v == null || v.isEmpty ? "Ingresa tu nombre" : null,
+                        ),
+                        const SizedBox(height: 20),
 
-  @override
-  Widget build(BuildContext context) {
-    final heightController =
-        TextEditingController(text: info.height.toString());
-    final weightController =
-        TextEditingController(text: info.weight.toString());
+                        TextFormField(
+                          controller: _apellidosController,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: "Apellidos",
+                            hintText: "Tus apellidos",
+                            prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                          ),
+                          validator: (v) => v == null || v.isEmpty ? "Ingresa tus apellidos" : null,
+                        ),
+                        const SizedBox(height: 20),
 
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Paso 3 de 3', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          TextField(
-            controller: heightController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Altura (cm)'),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: weightController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Peso (kg)'),
-          ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              OutlinedButton(onPressed: onBack, child: const Text('Atrás')),
-              ElevatedButton(
-                onPressed: () {
-                  info.height = double.tryParse(heightController.text) ?? 0;
-                  info.weight = double.tryParse(weightController.text) ?? 0;
-                  onFinish();
-                },
-                child: const Text('Finalizar'),
+                        TextFormField(
+                          controller: _fechaController,
+                          keyboardType: TextInputType.none, // Oculta el teclado
+                          readOnly: true, //solo se use el onTap
+                          onTap: () => _selectDate(context), // Llama al selector de fecha
+                          decoration: _inputDecoration.copyWith(
+                            labelText: "Fecha de nacimiento",
+                            hintText: "dd/mm/aaaa",
+                            suffixIcon: const Icon(Icons.calendar_today_outlined, color: AppColors.primaryBlue),
+                          ),
+                          validator: (v) {
+                          if (v == null || v.isEmpty) return "Selecciona tu fecha de nacimiento";
+                          if (_selectedDate == null) return "Fecha no válida";
+                          return null;
+                        },
+                        ),
+                        const SizedBox(height: 20),
+
+                        TextFormField(
+                          controller: _telefonoController,
+                          keyboardType: TextInputType.phone,
+                          decoration: _inputDecoration.copyWith(
+                            labelText: "Teléfono",
+                            hintText: "Ej. 9611234567",
+                            prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
+                          ),
+                          validator: null,
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Botón Registrar
+                        ElevatedButton(
+                          onPressed: _isSaving ? null : guardarDatos,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentTurquoise, 
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10), 
+                            ),
+                            elevation: 5, 
+                          ),
+                          child: _isSaving
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : const Text(
+                                  'Guardar datos',
+                                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                        ), 
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
-}*/
+
+  // Estilo de decoración de campos de texto reutilizable
+  InputDecoration get _inputDecoration => const InputDecoration(
+        filled: true,
+        fillColor: AppColors.inputFill,
+        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderSide: BorderSide.none, 
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderSide: BorderSide(color: AppColors.inputBorder, width: 1.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderSide: BorderSide(color: AppColors.primaryBlue, width: 2.0),
+        ),
+        labelStyle: TextStyle(color: AppColors.textSecondary),
+      );
+}
