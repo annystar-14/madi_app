@@ -18,6 +18,7 @@ dependencies:
   firebase_auth: ^4.6.0
   flutter_riverpod: ^2.4.0
   cloud_firestore: ^4.7.0
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -30,6 +31,7 @@ flutter:
 
   assets: 
     - lib/public/
+    - assets/web/
 
 flutter_launcher_icons:
   android: "medi_app_icon"

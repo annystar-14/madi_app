@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="medi_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/medi_app_icon">
+        android:icon="@mipmap/medi_app_icon"
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

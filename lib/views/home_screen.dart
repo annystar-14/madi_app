@@ -1,83 +1,78 @@
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
-
-import './reutilizable/header.dart';
-import './reutilizable/footer.dart';
-import 'package:medi_app/views/reutilizable/sideMenu.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../core/theme/app_colors.dart';
+import 'package:medi_app/views/reutilizable/assistant_webview.dart';
+import './reutilizable/header.dart';
+import 'package:medi_app/views/reutilizable/footer.dart';
+import 'package:medi_app/views/reutilizable/sideMenu.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-   @override
+  @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Función para obtener el primer nombre del usuario desde Firestore
+
   Future<String> _fetchFirstName() async {
     final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return 'Usuario';
-    }
-
+    if (user == null) return 'Usuario';
     try {
       final doc = await FirebaseFirestore.instance
           .collection('usuarios')
           .doc(user.uid)
           .get();
-
       if (doc.exists && doc.data() != null) {
-        // Obtenemos el nombre completo
         final fullName = doc.data()!['nombre'] as String? ?? 'Usuario';
-        
-        // Tomamos solo la primera palabra (el primer nombre)
         return fullName.trim().split(' ')[0];
       }
-      return 'Usuario'; // Si el documento no existe
+      return 'Usuario';
     } catch (e) {
       debugPrint('Error al obtener el nombre del usuario: $e');
-      return 'Usuario'; // En caso de error
+      return 'Usuario';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    // Aquí puedes tomar el estado real desde un provider
     final String estadoActual = "Sin sintomas registrados";
 
     return FutureBuilder<String>(
       future: _fetchFirstName(),
       builder: (context, snapshot) {
         final String userName = snapshot.data ?? 'Usuario';
-
         return Scaffold(
           backgroundColor: AppColors.lightBackground,
-          drawer: const AppDrawer(), 
-          
+          drawer: const AppDrawer(),
           appBar: Header(
             isHomeScreen: true,
             userName: userName,
             statusText: estadoActual,
-            onStatusCardPressed: () {
-              // Lógica para ir al historial de síntomas
-            },
+            onStatusCardPressed: () {},
           ),
+          body: Stack(
+            children: [
+              // 1. Contenido principal
+              _buildHomeBody(),
 
-          body: _buildHomeBody(),
-
+             
+              Positioned(
+                top: 40, 
+                right: 20,
+                width: 180,
+                height: 250,
+                child: const AssistantWebView(),
+              ),
+            ],
+          ),
           bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
         );
       },
     );
   }
 
-  // --- WIDGET DEL CONTENIDO DE LA PANTALLA DE INICIO ---
   Widget _buildHomeBody() {
     return SingleChildScrollView(
       child: Padding(
@@ -85,37 +80,33 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20), 
-
+            const SizedBox(height: 20),
             _buildEvaluationCard(),
             const SizedBox(height: 20),
-
             _buildInfoCard(
               icon: Icons.favorite_border,
               iconBgColor: const Color(0xFFFEEEEE),
               iconColor: const Color(0xFFE57373),
               title: 'Urgencias',
               subtitle: 'Cuando buscar ayuda',
-              onTap: () { /* ... */ },
+              onTap: () {},
             ),
             const SizedBox(height: 20),
-
             _buildInfoCard(
               icon: Icons.tips_and_updates_outlined,
               iconBgColor: const Color(0xFFFFF8E1),
               iconColor: const Color(0xFFFFB74D),
               title: 'Consejos de salud',
               subtitle: 'Ventila tus espacios regularmente',
-              onTap: () { /* ... */ },
+              onTap: () {},
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 300),
           ],
         ),
       ),
     );
   }
 
-  // --- LOS WIDGETS DE LAS TARJETAS ---
   Widget _buildEvaluationCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -137,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '¿Como te sientes hoy?',
+                  '¿Cómo te sientes hoy?',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -154,9 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 15),
                 ElevatedButton(
-                  onPressed: () {
-                    // Navegar a la pantalla de Evaluación
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primaryBlue,
@@ -175,8 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(width: 10),
           Icon(
-            Icons.calendar_today_rounded, // Ícono de calendario
-            color: Colors.white.withOpacity(0.5), // Sutil
+            Icons.calendar_today_rounded,
+            color: Colors.white.withOpacity(0.5),
             size: 70,
           ),
         ],
@@ -225,14 +214,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
+                  Text(title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      )),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
@@ -240,6 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 16,
                       color: AppColors.textSecondary,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
                 ],
               ),
