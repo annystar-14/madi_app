@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medi_app/core/theme/app_colors.dart';
+import 'package:medi_app/views/personal_info_screen.dart';
 import './reutilizable/header.dart';
 import './reutilizable/footer.dart';
 import 'package:medi_app/views/reutilizable/sideMenu.dart';
@@ -19,7 +20,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
     return FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
   }
 
-  //decoración de campos de texto reutilizable
   InputDecoration get _inputDecoration => const InputDecoration(
         filled: true,
         fillColor: AppColors.inputFill,
@@ -60,7 +60,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
         ? (userData['fecha_nacimiento'] as Timestamp).toDate()
         : null;
     
-    // Estado para manejar la carga del botón Guardar
     bool _isSaving = false;
 
     showDialog(
@@ -98,7 +97,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         labelText: 'Nombre',
                         hintText: 'Tu nombre',
                         prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
-                        label: nombreController.text.isEmpty ? const Text('Nombre') : null,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Este campo es obligatorio';
@@ -113,7 +111,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         labelText: 'Apellidos',
                         hintText: 'Tus apellidos',
                         prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
-                        label: apellidosController.text.isEmpty ? const Text('Apellidos') : null,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Este campo es obligatorio';
@@ -164,7 +161,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         labelText: 'Fecha de nacimiento',
                         hintText: 'dd/mm/aaaa',
                         suffixIcon: const Icon(Icons.calendar_today_outlined, color: AppColors.primaryBlue),
-                        label: fechaController.text.isEmpty ? const Text('Fecha de nacimiento') : null,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -176,7 +172,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         labelText: 'Teléfono',
                         hintText: 'Ej. 9611234567',
                         prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
-                        label: telefonoController.text.isEmpty ? const Text('Teléfono') : null,
                       ),
                       validator: null, 
                     ),
@@ -272,7 +267,47 @@ class _PerfilScreenState extends State<PerfilScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('No se encontraron datos del usuario'));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '¡Parece que aún no tienes información registrada!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PersonalInfoScreen(), 
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                      label: const Text(
+                        'Agregar información',
+                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           final userData = snapshot.data!.data()!;
@@ -383,7 +418,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
     );
   }
 
-  // Widget reutilizable para el diseño de cada ítem en la Card
   Widget _buildProfileListItem({
     required IconData icon,
     required String title,

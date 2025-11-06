@@ -18,10 +18,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  // Estado para controlar la visibilidad de la contraseña
+  //controlar la visibilidad de la contraseña
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  bool _isLoading = false; // Para el estado de carga del botón
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -47,7 +47,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } catch (e) {
       await Future.delayed(const Duration(milliseconds: 300));
 
-      if (!mounted) return; // <-- evita usar ref o context si ya fue destruido
+      if (!mounted) return;
 
       final user = ref.read(authStateProvider);
       if (user == null) {
@@ -75,7 +75,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
       }
     } finally {
-      if (!mounted) return; // <-- protección adicional
+      if (!mounted) return;
 
       setState(() {
         _isLoading = false;
@@ -289,7 +289,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  // Estilo de decoración de campos de texto reutilizable
   InputDecoration get _inputDecoration => const InputDecoration(
         filled: true,
         fillColor: AppColors.inputFill,

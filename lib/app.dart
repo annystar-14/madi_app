@@ -11,12 +11,10 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
 
-    return ProviderScope(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'MediApp',
-        home: authState == null ? const LoginScreen() : const HomeScreen(),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'MediApp',
+      home: authState == null ? const LoginScreen() : const HomeScreen(),
     );
   }
 }

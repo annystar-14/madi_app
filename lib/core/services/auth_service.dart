@@ -7,31 +7,43 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-Future<void> signIn(String email, String password) async {
-  final userCred = await _auth.signInWithEmailAndPassword(email: email, password: password);
-  final token = await userCred.user?.getIdToken();
-  if (token != null) {
-    await _db.insertUser(email, token); // guarda usuario localmente
+  Future<void> signIn(String email, String password) async {
+    final userCred = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    final token = await userCred.user?.getIdToken();
+        
+      if (token != null) {
+        try {
+            await _db.insertUser(email, token); 
+            } catch (e) {
+              print('Advertencia: Falló al guardar el token localmente: $e');
+            }
+      }
   }
-}
 
   Future<void> signUp(String email, String password) async {
     final userCred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
     final token = await userCred.user?.getIdToken();
+        
     if (token != null) {
-      await _db.insertUser(email, token);
+      try {
+            await _db.insertUser(email, token);
+          } catch (e) {
+              print('Advertencia: Falló al guardar el token después del registro: $e');
+          }
+      }
+  }
+
+  Future<void> signOut() async {
+    final user = _auth.currentUser;
+    
+    if (user != null) {
+      try {
+        await _db.deleteUser(user.email!); 
+      } catch (e) {
+        print('Advertencia: Falló al eliminar el usuario localmente: $e');
+      }
     }
-  }
-
-Future<void> signOut() async {
-  final user = _auth.currentUser;
-  if (user != null) {
-    await _db.deleteUser(user.email!); // elimina sesión local
-  }
-  await _auth.signOut();
-}
-
-  Future<Map<String, dynamic>?> getLocalUser(String email) async {
-    return await _db.getUser(email);
+    
+    await _auth.signOut();
   }
 }

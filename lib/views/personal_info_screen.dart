@@ -60,7 +60,7 @@ Future<void> _selectDate(BuildContext context) async {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(), // No permitir fechas futuras para nacimiento
+      lastDate: DateTime.now(), //no fechas futuras para nacimiento
       helpText: 'Selecciona tu fecha de nacimiento',
       confirmText: 'Seleccionar',
       cancelText: 'Cancelar',
@@ -84,7 +84,6 @@ Future<void> _selectDate(BuildContext context) async {
     );
 
     if (picked != null) {
-      // Formatear la fecha a 'dd/mm/aaaa' para el controlador de texto
       setState(() {
         _selectedDate = picked;
         _fechaController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
@@ -182,8 +181,8 @@ Future<void> _selectDate(BuildContext context) async {
                         TextFormField(
                           controller: _fechaController,
                           keyboardType: TextInputType.none, // Oculta el teclado
-                          readOnly: true, //solo se use el onTap
-                          onTap: () => _selectDate(context), // Llama al selector de fecha
+                          readOnly: true,
+                          onTap: () => _selectDate(context),
                           decoration: _inputDecoration.copyWith(
                             labelText: "Fecha de nacimiento",
                             hintText: "dd/mm/aaaa",
@@ -246,7 +245,6 @@ Future<void> _selectDate(BuildContext context) async {
     );
   }
 
-  // Estilo de decoración de campos de texto reutilizable
   InputDecoration get _inputDecoration => const InputDecoration(
         filled: true,
         fillColor: AppColors.inputFill,

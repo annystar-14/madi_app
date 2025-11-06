@@ -346,7 +346,7 @@ class ConsultaScreen extends StatelessWidget {
       backgroundColor: AppColors.lightBackground,
       drawer: const AppDrawer(),
       appBar: Header(
-        title: 'Consulta médica con IA',
+        title: 'Consulta con IA',
         leadingIcon:
             const Icon(Icons.medical_services, color: Colors.white, size: 30),
       ),
@@ -358,7 +358,7 @@ class ConsultaScreen extends StatelessWidget {
         },
         child: const ChatContent(),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
     );
   }
 }

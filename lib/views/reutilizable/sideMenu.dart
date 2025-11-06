@@ -5,7 +5,6 @@ import 'package:medi_app/core/theme/app_colors.dart';
 import 'package:medi_app/views/aprender_screen.dart';
 import 'package:medi_app/views/historial_screen.dart';
 import 'package:medi_app/views/home_screen.dart';
-import 'package:medi_app/views/login_screen.dart';
 import 'package:medi_app/views/perfil_screen.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -98,10 +97,10 @@ class AppDrawer extends ConsumerWidget {
                 text: 'Cerrar sesión',
                 onTap: () async {
                   await ref.read(authStateProvider.notifier).signOut();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  );
+
+                  if (context.mounted) {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  }
                 },
               ),
               const SizedBox(height: 20),

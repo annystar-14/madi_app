@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medi_app/core/services/auth_service.dart';
 
 final authStateProvider = StateNotifierProvider<AuthNotifier, User?>((ref) {
+  ref.keepAlive();
   return AuthNotifier();
 });
 
@@ -10,8 +11,6 @@ class AuthNotifier extends StateNotifier<User?> {
   final AuthService _authService = AuthService();
 
   AuthNotifier() : super(null) {
-    //  Antes: _authService.authStateChanges().listen(...)
-    //  Ahora:
     _authService.authStateChanges.listen((user) {
       state = user;
     });
@@ -24,6 +23,7 @@ class AuthNotifier extends StateNotifier<User?> {
 
   Future<void> signUp(String email, String password) async {
     await _authService.signUp(email, password);
+    state = FirebaseAuth.instance.currentUser;
   }
 
   Future<void> signOut() async {

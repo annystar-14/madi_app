@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
-import 'package:medi_app/views/home_screen.dart';
 import 'package:medi_app/views/registrer_screen.dart';
 import '../core/theme/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,26 +19,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  ProviderSubscription<User?>? _authListener; 
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Escucha segura (solo una vez)
-    _authListener ??= ref.listenManual<User?>(authStateProvider, (prev, next) {
-      if (next != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      }
-    });
+  void initState() {
+    super.initState();
   }
 
   @override
   void dispose() {
-    _authListener?.close();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -58,17 +45,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _passwordController.text.trim(),
         );
       } catch (e) {
-        await Future.delayed(const Duration(milliseconds: 300));
-
-        if (!mounted) return; 
-
-        final user = ref.read(authStateProvider);
-        if (user == null) {
+        print('Error en login: $e');
+        
+        if (mounted) {
+          final errorMessage = _getErrorMessage(e);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Error de inicio de sesión. Verifica tu correo y contraseña.',
-              ),
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -81,6 +65,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     }
   }
+
+  String _getErrorMessage(dynamic error) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'user-not-found':
+          return 'No existe una cuenta con este correo.';
+        case 'wrong-password':
+          return 'Contraseña incorrecta.';
+        case 'invalid-email':
+          return 'Correo electrónico inválido.';
+        default:
+          return 'Error de inicio de sesión: ${error.message}';
+      }
+    }
+
+    final errorString = error.toString();
+    if (errorString.contains('PigeonUserDetails')) {
+      return 'Inicio de sesión exitoso, ajustando sesión local...'; 
+    }
+    return 'Error de inicio de sesión. Verifica tu conexión.';
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: _isLoading ? null : () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:medi_app/views/consulta.dart';
 import '../core/theme/app_colors.dart';
 import 'package:medi_app/views/reutilizable/assistant_webview.dart';
 import './reutilizable/header.dart';
@@ -52,21 +53,21 @@ class _HomeScreenState extends State<HomeScreen> {
             statusText: estadoActual,
             onStatusCardPressed: () {},
           ),
-          body: Stack(
-            children: [
-              // 1. Contenido principal
-              _buildHomeBody(),
+          // body: Stack(
+          //   children: [
+          //     // 1. Contenido principal
+          //     _buildHomeBody(),
 
-             
-              Positioned(
-                top: 40, 
-                right: 20,
-                width: 180,
-                height: 250,
-                child: const AssistantWebView(),
-              ),
-            ],
-          ),
+          //     // Positioned(
+          //     //   top: 40, 
+          //     //   right: 20,
+          //     //   width: 180,
+          //     //   height: 250,
+          //     //   child: const AssistantWebView(),
+          //     // ),
+          //   ],
+          // ),
+          body: _buildHomeBody(),
           bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
         );
       },
@@ -111,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue,
+        gradient: AppColors.blueGradient,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -145,7 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 15),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ConsultaScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primaryBlue,
