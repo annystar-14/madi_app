@@ -31,24 +31,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  void register() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+ Future<void> register() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
 
-      final authNotifier = ref.read(authStateProvider.notifier);
-      try {
-        await authNotifier.signUp(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
-        
-        } catch (e) {
-      // Espera un momento y verifica si el usuario fue autenticado
+    final authNotifier = ref.read(authStateProvider.notifier);
+
+    try {
+      await authNotifier.signUp(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    } catch (e) {
       await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return; // <-- evita usar ref o context si ya fue destruido
+
       final user = ref.read(authStateProvider);
-      if (user == null && mounted) {
+      if (user == null) {
         String errorMessage = 'Registro fallido. Verifica tus datos.';
         if (e is FirebaseAuthException) {
           switch (e.code) {
@@ -73,15 +75,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return; // <-- protección adicional
 
-      //Si el usuario fue autenticado, redirige
+      setState(() {
+        _isLoading = false;
+      });
+
       final user = ref.read(authStateProvider);
-      if (user != null && mounted) {
+      if (user != null) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const PersonalInfoScreen()),
@@ -121,7 +122,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 5),
               const Text(
-                'Orientación en síntomas respiratorios',
+                'Orientación en enfermedades primarias',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

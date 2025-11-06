@@ -6,7 +6,6 @@ import 'package:medi_app/views/registrer_screen.dart';
 import '../core/theme/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -18,37 +17,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
-  // Estado para controlar la visibilidad de la contraseña
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  ProviderSubscription<User?>? _authListener; 
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Escucha segura (solo una vez)
+    _authListener ??= ref.listenManual<User?>(authStateProvider, (prev, next) {
+      if (next != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _authListener?.close();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void login() async {
+  Future<void> login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      final authNotifier = ref.read(authStateProvider.notifier);
       try {
+        final authNotifier = ref.read(authStateProvider.notifier);
         await authNotifier.signIn(
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-    
       } catch (e) {
         await Future.delayed(const Duration(milliseconds: 300));
+
+        if (!mounted) return; 
+
         final user = ref.read(authStateProvider);
-        if (user == null && mounted) {
+        if (user == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error de inicio de sesión. Verifica tu correo y contraseña.')),
+            const SnackBar(
+              content: Text(
+                'Error de inicio de sesión. Verifica tu correo y contraseña.',
+              ),
+            ),
           );
         }
       } finally {
@@ -63,29 +84,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    ref.listen<User?>(authStateProvider, (prev, next) {
-    if (next != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    }
-  });
-
     return Scaffold(
-      backgroundColor: AppColors.lightBackground, // Fondo claro
-      body: Center( 
+      backgroundColor: AppColors.lightBackground,
+      body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0), 
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Logo y subtítulos (fuera de la tarjeta)
               Image.asset(
                 'lib/public/logo.png',
-                height: 100, 
+                height: 100,
                 width: 100,
                 alignment: Alignment.center,
               ),
@@ -101,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 5),
               const Text(
-                'Orientación en síntomas respiratorios',
+                'Orientación en enfermedades primarias',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -109,8 +119,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // 2. Tarjeta con el Formulario de inicio de sesión
               Card(
                 color: Colors.white,
                 elevation: 8,
@@ -125,7 +133,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Título "Iniciar Sesión"
                         const Text(
                           'Iniciar sesión',
                           textAlign: TextAlign.center,
@@ -136,33 +143,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: _inputDecoration.copyWith(
                             labelText: 'Correo electrónico',
                             hintText: 'ejemplo@email.com',
-                            prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty || !value.contains('@')) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                !value.contains('@')) {
                               return 'Ingresa un correo válido';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 20),
-
                         TextFormField(
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
                           decoration: _inputDecoration.copyWith(
                             labelText: 'Contraseña',
-                            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: AppColors.textSecondary,
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                _isPasswordVisible
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: AppColors.textSecondary,
                               ),
                               onPressed: () {
@@ -180,12 +195,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           },
                         ),
                         const SizedBox(height: 30),
-
-                        // Botón
                         ElevatedButton(
                           onPressed: _isLoading ? null : login,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accentTurquoise, 
+                            backgroundColor: AppColors.accentTurquoise,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -203,23 +216,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 )
                               : const Text(
                                   'Iniciar sesión',
-                                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                         ),
                         const SizedBox(height: 20),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
                               '¿No tienes cuenta?',
-                              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 16,
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RegisterScreen(),
+                                  ),
                                 );
                               },
                               child: const Text(
@@ -238,7 +260,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 40),
               const Text(
                 'Tus datos están protegidos por encriptación',
@@ -255,14 +276,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  // Estilo de decoración de campos de texto reutilizable
   InputDecoration get _inputDecoration => const InputDecoration(
         filled: true,
         fillColor: AppColors.inputFill,
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+        contentPadding:
+            EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide.none, 
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),

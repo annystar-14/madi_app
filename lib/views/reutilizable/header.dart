@@ -39,7 +39,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildHomeScreenHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.primaryBlue,
+        gradient: AppColors.blueGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(25),
           bottomRight: Radius.circular(25),
@@ -70,7 +70,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildSimpleHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.primaryBlue,
+        gradient: AppColors.blueGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(25),
           bottomRight: Radius.circular(25),

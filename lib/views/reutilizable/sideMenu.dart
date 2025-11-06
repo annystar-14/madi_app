@@ -26,7 +26,10 @@ class AppDrawer extends ConsumerWidget {
         borderRadius: BorderRadius.horizontal(right: Radius.circular(25)),
       ),
       child: Container(
-        color: AppColors.primaryBlue,
+        child: Container(
+        decoration: const BoxDecoration(
+        gradient: AppColors.blueGradient,
+      ),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +109,7 @@ class AppDrawer extends ConsumerWidget {
           ),
         ),
       ),
+    )
     );
   }
 

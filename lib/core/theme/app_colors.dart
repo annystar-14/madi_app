@@ -12,4 +12,15 @@ class AppColors {
   // Colores para campos de texto
   static const Color inputBorder = Color(0xFFE0E0E0);
   static const Color inputFill = Colors.white;
+
+    static const Gradient blueGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color.fromARGB(255, 11, 56, 122), 
+      Color.fromARGB(255, 27, 119, 180),
+      Color.fromARGB(255, 30, 191, 212), 
+    ],
+  );
+
 }
