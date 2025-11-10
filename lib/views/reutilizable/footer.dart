@@ -3,16 +3,12 @@ import 'package:medi_app/views/aprender_screen.dart';
 import 'package:medi_app/views/historial_screen.dart';
 import 'package:medi_app/views/home_screen.dart';
 import 'package:medi_app/views/perfil_screen.dart';
-
 import '../../core/theme/app_colors.dart';
 
 class AppBottomNavBar extends StatelessWidget {
-  final int currentIndex;
+  final int? currentIndex;
 
-  const AppBottomNavBar({
-    Key? key,
-    required this.currentIndex,
-  }) : super(key: key);
+  const AppBottomNavBar({super.key, this.currentIndex});
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == currentIndex) return;
@@ -53,25 +49,32 @@ class AppBottomNavBar extends StatelessWidget {
     required IconData icon,
     required String label,
     required int itemIndex,
-    double iconSize = 35,
   }) {
     final bool isActive = currentIndex == itemIndex;
-    final Color iconColor = isActive ? AppColors.primaryBlue : Colors.grey.shade600;
-    final Color backgroundColor = isActive 
-      ? AppColors.primaryBlue.withOpacity(0.2) 
-      : Colors.transparent;
+    final Color activeColor = AppColors.primaryBlue;
+    final Color inactiveColor = Colors.grey.shade600;
 
     return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.all(6),
+      icon: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: backgroundColor,
+          color: isActive ? activeColor.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: activeColor.withOpacity(0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [],
         ),
         child: Icon(
           icon,
-          size: iconSize,
-          color: iconColor,
+          size: isActive ? 33 : 31,
+          color: isActive ? activeColor : inactiveColor,
         ),
       ),
       label: label,
@@ -89,7 +92,7 @@ class AppBottomNavBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withOpacity(0.12),
             spreadRadius: 0,
             blurRadius: 20,
             offset: const Offset(0, -4),
@@ -106,47 +109,27 @@ class AppBottomNavBar extends StatelessWidget {
           topRight: Radius.circular(25),
         ),
         child: BottomNavigationBar(
-          currentIndex: currentIndex,
+          currentIndex: currentIndex ?? 0,
           onTap: (index) => _onItemTapped(context, index),
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
           selectedItemColor: AppColors.primaryBlue,
           unselectedItemColor: Colors.grey.shade600,
+          showUnselectedLabels: true,
+          elevation: 0,
           selectedLabelStyle: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.2,
+            fontWeight: FontWeight.w700,
           ),
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: Colors.grey.shade500,
-            letterSpacing: -0.2,
           ),
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          iconSize: 35,
           items: [
-            _buildNavItem(
-              icon: Icons.home,
-              label: 'Inicio',
-              itemIndex: 0,
-            ),
-            _buildNavItem(
-              icon: Icons.history,
-              label: 'Historial',
-              itemIndex: 1,
-            ),
-            _buildNavItem(
-              icon: Icons.book_outlined,
-              label: 'Aprender',
-              itemIndex: 2,
-            ),
-            _buildNavItem(
-              icon: Icons.account_circle_outlined,
-              label: 'Perfil',
-              itemIndex: 3,
-            ),
+            _buildNavItem(icon: Icons.home_rounded, label: 'Inicio', itemIndex: 0),
+            _buildNavItem(icon: Icons.history_rounded, label: 'Historial', itemIndex: 1),
+            _buildNavItem(icon: Icons.book_outlined, label: 'Aprender', itemIndex: 2),
+            _buildNavItem(icon: Icons.account_circle_outlined, label: 'Perfil', itemIndex: 3),
           ],
         ),
       ),

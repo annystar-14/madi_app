@@ -357,7 +357,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             color: AppColors.primaryBlue,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 8),
                         
                         _buildProfileListItem(
                           icon: Icons.email_outlined,
@@ -365,7 +365,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           subtitle: userData['correo'] ?? 'No disponible',
                           context: context,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
 
                         _buildProfileListItem(
                           icon: Icons.person_outline,
@@ -373,7 +373,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           subtitle: userData['nombre'] ?? 'No asignado',
                           context: context,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
 
                         _buildProfileListItem(
                           icon: Icons.person_outline,
@@ -381,7 +381,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           subtitle: userData['apellidos'] ?? 'No asignado',
                           context: context,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
 
                         _buildProfileListItem(
                           icon: Icons.phone_outlined,
@@ -389,7 +389,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           subtitle: userData['telefono'] ?? 'No asignado',
                           context: context,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
 
                         _buildProfileListItem(
                           icon: Icons.cake_outlined,

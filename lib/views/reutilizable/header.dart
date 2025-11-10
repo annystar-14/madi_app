@@ -4,7 +4,6 @@ import 'package:medi_app/views/perfil_screen.dart';
 import '../../core/theme/app_colors.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
-  // --- PARÁMETROS ---
   final bool isHomeScreen;
   final String? userName;
   final String? statusText;
@@ -12,8 +11,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? leadingIcon;
 
-  // --- ALTURAS ---
-  static const double _homeHeaderHeight = 200.0; // Altura para Home
+  static const double _homeHeaderHeight = 180.0; // Altura para Home
   static const double _simpleHeaderHeight = 80.0; // Altura para otras vistas
 
   const Header({
@@ -33,9 +31,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
         : _buildSimpleHeader(context);
   }
 
-  /// -------------------------------------------
-  /// CONSTRUCTOR PARA HOME
-  /// -------------------------------------------
   Widget _buildHomeScreenHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -50,12 +45,10 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
           child: Column(
             children: [
-              // Fila superior (Saludo e Iconos)
               _buildHomeTopRow(context),
   
               const Spacer(), 
 
-              // Tarjeta de estado
               _buildStatusCard(context),
             ],
           ),
@@ -64,9 +57,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  /// -------------------------------------------
-  /// CONSTRUCTOR SIMPLE (OTRAS VISTAS)
-  /// -------------------------------------------
   Widget _buildSimpleHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -87,10 +77,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-
-  // --- WIDGETS INTERNOS ---
-
-  // fila superior para HOME (con saludo)
   Widget _buildHomeTopRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +128,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // fila superior para OTRAS VISTAS
   Widget _buildSimpleTopRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +135,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       children: [
         Row(
           children: [
-            if (leadingIcon != null) // Mostrar icono si existe
+            if (leadingIcon != null)
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: leadingIcon!,
@@ -158,7 +143,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
             Text(
               title ?? 'MediApp',
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -189,13 +174,12 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // Widget para la tarjeta de estado (solo se usa en Home)
   Widget _buildStatusCard(BuildContext context) {
     return InkWell(
       onTap: onStatusCardPressed,
       borderRadius: BorderRadius.circular(15),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(15),
@@ -207,19 +191,19 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Estado actual',
+                  'Últimos síntomas',
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  statusText ?? 'Sin sintomas registrados',
+                  statusText ?? 'Sin síntomas registrados',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -236,12 +220,8 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  /// -------------------------------------------
-  /// TAMAÑO PREFERIDO (CONDICIONAL)
-  /// -------------------------------------------
   @override
   Size get preferredSize => Size.fromHeight(
-        // altura grande para el home, y la simple para el resto
         isHomeScreen ? _homeHeaderHeight : _simpleHeaderHeight,
       );
 }

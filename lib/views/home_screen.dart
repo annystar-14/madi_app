@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medi_app/views/consulta.dart';
+import 'package:medi_app/views/historial_screen.dart';
 import '../core/theme/app_colors.dart';
-import 'package:medi_app/views/reutilizable/assistant_webview.dart';
 import './reutilizable/header.dart';
 import 'package:medi_app/views/reutilizable/footer.dart';
 import 'package:medi_app/views/reutilizable/sideMenu.dart';
@@ -36,14 +36,53 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<String> _fetchLastDiagnosis() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return 'Sin actividad reciente';
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid)
+          .collection('consultas')
+          .orderBy('fecha', descending: true)
+          .limit(1) 
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return 'Sin consultas registradas';
+      }
+
+      final ultimoResultado =
+          querySnapshot.docs.first.data()['sintomas'] as String? ?? '';
+          
+      if (ultimoResultado.length > 30) {
+        return '${ultimoResultado.substring(0, 30).trim()}...';
+      }
+      
+      return ultimoResultado.isEmpty
+          ? 'Consulta incompleta'
+          : ultimoResultado;
+          
+    } catch (e) {
+      debugPrint('Error al obtener el último diagnóstico: $e');
+      return 'Error al cargar datos';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String estadoActual = "Sin sintomas registrados";
 
     return FutureBuilder<String>(
       future: _fetchFirstName(),
       builder: (context, snapshot) {
         final String userName = snapshot.data ?? 'Usuario';
+
+        return FutureBuilder<String>(
+        future: _fetchLastDiagnosis(),
+        builder: (context, snapshotDiagnostico) {
+          final String estadoActual = snapshotDiagnostico.data ?? 'Cargando estado...';
+
         return Scaffold(
           backgroundColor: AppColors.lightBackground,
           drawer: const AppDrawer(),
@@ -51,25 +90,19 @@ class _HomeScreenState extends State<HomeScreen> {
             isHomeScreen: true,
             userName: userName,
             statusText: estadoActual,
-            onStatusCardPressed: () {},
+            onStatusCardPressed: () {
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HistorialScreen(),
+                         ),
+                      );
+            },
           ),
-          // body: Stack(
-          //   children: [
-          //     // 1. Contenido principal
-          //     _buildHomeBody(),
-
-          //     // Positioned(
-          //     //   top: 40, 
-          //     //   right: 20,
-          //     //   width: 180,
-          //     //   height: 250,
-          //     //   child: const AssistantWebView(),
-          //     // ),
-          //   ],
-          // ),
           body: _buildHomeBody(),
           bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
         );
+      });
       },
     );
   }
@@ -151,8 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ConsultaScreen(),
-                      ),
-                    );
+                         ),
+                      );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

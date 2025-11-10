@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
 import 'package:medi_app/core/theme/app_colors.dart';
 import 'package:medi_app/views/aprender_screen.dart';
+import 'package:medi_app/views/consulta.dart';
 import 'package:medi_app/views/historial_screen.dart';
 import 'package:medi_app/views/home_screen.dart';
 import 'package:medi_app/views/perfil_screen.dart';
@@ -18,6 +19,44 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
+  void _showLogoutConfirmationDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Cerrar sesión'),
+          content: const Text('¿Estás seguro de que quieres cerrar tu sesión actual?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.primaryBlue)),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop(); 
+
+                await ref.read(authStateProvider.notifier).signOut();
+
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+              child: const Text('Cerrar sesión',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
@@ -25,7 +64,6 @@ class AppDrawer extends ConsumerWidget {
         borderRadius: BorderRadius.horizontal(right: Radius.circular(25)),
       ),
       child: Container(
-        child: Container(
         decoration: const BoxDecoration(
         gradient: AppColors.blueGradient,
       ),
@@ -33,7 +71,7 @@ class AppDrawer extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Botón de Cerrar (X)
+              //botón de cerrar (X)
               Padding(
                 padding: const EdgeInsets.only(top: 10, left: 10, bottom: 10),
                 child: IconButton(
@@ -44,13 +82,22 @@ class AppDrawer extends ConsumerWidget {
                 ),
               ),
 
-              // 2. Lista de opciones principales
               _buildDrawerItem(
                 context: context,
-                icon: Icons.home_outlined,
+                icon: Icons.home_rounded,
                 text: 'Inicio',
                 onTap: () {
+                  Navigator.of(context).pop();
                   _navigateToScreen(context, const HomeScreen());
+                },
+              ),
+              _buildDrawerItem(
+                context: context,
+                icon: Icons.medical_services,
+                text: 'Consulta médica IA',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigateToScreen(context, const ConsultaScreen());
                 },
               ),
               _buildDrawerItem(
@@ -58,6 +105,7 @@ class AppDrawer extends ConsumerWidget {
                 icon: Icons.history,
                 text: 'Historial',
                 onTap: () {
+                 Navigator.of(context).pop();
                   _navigateToScreen(context, const HistorialScreen());
                 },
               ),
@@ -66,6 +114,7 @@ class AppDrawer extends ConsumerWidget {
                 icon: Icons.book_outlined,
                 text: 'Aprender',
                 onTap: () {
+                  Navigator.of(context).pop();
                   _navigateToScreen(context, const AprenderScreen());
                 },
               ),
@@ -79,28 +128,17 @@ class AppDrawer extends ConsumerWidget {
                 icon: Icons.account_circle_outlined,
                 text: 'Mi perfil',
                 onTap: () {
+                  Navigator.of(context).pop();
                   _navigateToScreen(context, const PerfilScreen());
                 },
               ),
-              _buildDrawerItem(
-                context: context,
-                icon: Icons.settings_outlined,
-                text: 'Configuración',
-                onTap: () {
-                  // _navigateToScreen(context, const ConfiguracionScreen());
-               
-                },
-              ),
+      
               _buildDrawerItem(
                 context: context,
                 icon: Icons.logout,
                 text: 'Cerrar sesión',
-                onTap: () async {
-                  await ref.read(authStateProvider.notifier).signOut();
-
-                  if (context.mounted) {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  }
+                onTap: ()  {
+                  _showLogoutConfirmationDialog(context, ref);
                 },
               ),
               const SizedBox(height: 20),
@@ -108,11 +146,9 @@ class AppDrawer extends ConsumerWidget {
           ),
         ),
       ),
-    )
     );
   }
 
-  /// Widget helper para crear cada opción del menú
   Widget _buildDrawerItem({
     required BuildContext context,
     required IconData icon,
@@ -129,12 +165,7 @@ class AppDrawer extends ConsumerWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      onTap: () {
-        // 1. Cierra el drawer primero
-        Navigator.of(context).pop();
-        // 2. Ejecuta la acción (navegación, etc.)
-        onTap();
-      },
+      onTap: onTap,
       horizontalTitleGap: 10,
     );
   }

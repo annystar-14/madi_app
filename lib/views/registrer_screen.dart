@@ -71,7 +71,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           }
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
+          SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
         );
       }
     } finally {

@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -8,7 +10,7 @@ import './reutilizable/footer.dart';
 import 'package:medi_app/views/reutilizable/sideMenu.dart';
 
 const String _apiKey = "AIzaSyCatsvDrs6Z5xdSGEXb7D4wtPcoWoXMqiY"; 
-const String _apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=$_apiKey";
+const String _apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$_apiKey";
 
 class Message {
   final String text;
@@ -72,6 +74,9 @@ class StructuredResponse {
 
 class ChatProvider extends ChangeNotifier {
   final List<Message> _messages = [];
+  //nueva lista
+  final List<String> _successfulUserQueries = [];
+
   bool _isLoading = false;
   final TextEditingController inputController = TextEditingController();
 
@@ -87,10 +92,12 @@ class ChatProvider extends ChangeNotifier {
     } else {
       final freeText = inputController.text.trim();
       if (freeText.isEmpty) return;
-      userQuery = "Mis síntomas o información: $freeText";
+      userQuery = freeText;
       _messages.add(Message(text: userQuery, isUser: true));
       inputController.clear();
     }
+
+    final currentQueryToTrack = userQuery;
 
     _isLoading = true;
     notifyListeners();
@@ -100,10 +107,10 @@ class ChatProvider extends ChangeNotifier {
         .join('\n');
 
     const systemPrompt =
-        "Actúa como un asistente de triaje de síntomas no médico. Tu objetivo es guiar al usuario a través de preguntas de seguimiento o proporcionar una lista de posibles afecciones y consejos de autocuidado. NUNCA diagnostiques oficialmente una enfermedad. Siempre incluye una ADVERTENCIA estricta. Responde SIEMPRE con una única estructura JSON. Usa SOLO las claves: 'status', 'advertencia', 'data'. Para 'FOLLOW_UP', 'data' debe tener 'question' y 'options'. Para 'DIAGNOSIS_READY', 'data' debe tener 'conditions'.";
+        "Actúa como un asistente de triaje de síntomas no médico. Tu objetivo es guiar al usuario a través de preguntas de seguimiento o proporcionar una lista de posibles afecciones y consejos de autocuidado. NUNCA diagnostiques oficialmente una enfermedad. Siempre incluye una ADVERTENCIA estricta. Responde SIEMPRE con una única estructura JSON. Usa SOLO las claves: 'status', 'advertencia', 'data'. Para 'FOLLOW_UP', 'data' debe tener 'question' y 'options'. Para 'DIAGNOSIS_READY', 'data' debe tener 'conditions', donde CADA condición DEBE incluir los campos de 'name' que es el nombre de la afección, 'description' que la descripcion de la afección, y 'treatment_advice' que son los consejos de autocuidado.";
 
     final userInstruction =
-        "Analiza esta conversación y la última entrada del usuario. Si es la primera interacción o si la información es insuficiente (ej: solo un síntoma vago), genera una pregunta de seguimiento relevante con tres opciones de respuesta. Si la información es suficiente, genera un diagnóstico de posibles afecciones (máximo 3) con sus descripciones y consejos de tratamiento/autocuidado. Historia: \n$conversationHistory\n\nÚltima entrada: $userQuery";
+        "Analiza esta conversación y la última entrada del usuario. Si es la primera interacción o si la información es insuficiente (ej: solo un síntoma vago), genera una pregunta de seguimiento relevante con tres opciones de respuesta. Si la información ingresada no esta relacionada con ningun sintoma recuerdale al usuario tu proposito amablemente sobre detectar afecciones con base a sintomas ingresados por el usaurio. Si la información es suficiente, genera un diagnóstico de posibles afecciones (máximo 3) con el nombre de la posible afección junto con sus descripciones y consejos de tratamiento/autocuidado. Historia: \n$conversationHistory\n\nÚltima entrada: $userQuery";
 
     final payload = json.encode({
       "contents": [
@@ -136,17 +143,40 @@ class ChatProvider extends ChangeNotifier {
       }
 
       final result = json.decode(response.body);
-      final jsonText =
-          result['candidates'][0]['content']['parts'][0]['text'] as String;
 
-      final cleanedJson = jsonText
+      final List candidates = result['candidates'] ?? [];
+      if (candidates.isEmpty) {
+        throw const FormatException("La IA no devolvió 'candidates'.");
+      }
+
+      final contentParts = candidates[0]['content']['parts'] ?? [];
+      if (contentParts.isEmpty) {
+        throw const FormatException("La IA no devolvió contenido de respuesta.");
+      }
+
+      final dynamic contentText = contentParts[0]['text'];
+
+      String rawJson;
+      if (contentText is String) {
+        rawJson = contentText;
+      } else if (contentText is Map<String, dynamic>) {
+
+        rawJson = json.encode(contentText);
+      } else {
+        throw const FormatException("El contenido de la IA no es String ni Map.");
+      }
+
+      final cleanedJson = rawJson
           .trim()
           .replaceAll('```json', '')
           .replaceAll('```', '')
           .trim();
 
-      final structuredData =
-          StructuredResponse.fromJson(json.decode(cleanedJson));
+      final Map<String, dynamic> jsonData = json.decode(cleanedJson) as Map<String, dynamic>;
+
+      final structuredData = StructuredResponse.fromJson(jsonData);
+
+      _successfulUserQueries.add(currentQueryToTrack);
 
       if (structuredData.status == "FOLLOW_UP") {
         _messages.add(Message(
@@ -167,11 +197,30 @@ class ChatProvider extends ChangeNotifier {
         }
 
         _messages.add(Message(text: diagnosisText, isUser: false));
+
+        try {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            final allSymptoms = _successfulUserQueries.join('; ');
+            await FirebaseFirestore.instance
+                .collection('usuarios')
+                .doc(user.uid)
+                .collection('consultas')
+                .add({
+              'fecha': Timestamp.now(),
+              'sintomas': allSymptoms,
+              'resultado': diagnosisText,
+            });
+            _successfulUserQueries.clear();
+          }
+        } catch (e) {
+          debugPrint("Error al guardar la consulta en Firestore: $e");
+        }
       }
     } catch (e) {
       _messages.add(Message(
           text:
-              "Error de conexión o de la IA: No pude obtener una respuesta estructurada. Por favor, intenta de nuevo. (Detalle: $e)",
+              "Error de conexión o de la IA: Por favor, intenta de nuevo.",
           isUser: false));
     }
 
@@ -180,6 +229,8 @@ class ChatProvider extends ChangeNotifier {
   }
 
   void startConversation() {
+    _messages.clear();
+    _successfulUserQueries.clear();
     _messages.add(Message(
         text:
             "Hola, soy tu asistente médico virtual. Describe tus síntomas (por ejemplo: 'fiebre alta, tos seca') para empezar.",
@@ -215,7 +266,7 @@ class ChatContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(40),
+                borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
@@ -225,45 +276,67 @@ class ChatContent extends StatelessWidget {
                 ],
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: chatProvider.inputController,
-                      decoration: const InputDecoration(
-                        hintText: 'Describe tus síntomas...',
-                        border: InputBorder.none,
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: 40,
+                          maxHeight: 100,
+                        ),
+                        child: Scrollbar(
+                          thumbVisibility: false,
+                          child: SingleChildScrollView(
+                            reverse: true,
+                            child: TextField(
+                              controller: chatProvider.inputController,
+                              maxLines: null, // crecimiento dinámico
+                              keyboardType: TextInputType.multiline,
+                              decoration: const InputDecoration(
+                                hintText: 'Describe tus síntomas...',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: chatProvider.isLoading
                         ? const Padding(
-                            padding: EdgeInsets.all(6.0),
+                            padding: EdgeInsets.all(8.0),
                             child: SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: 26,
+                              height: 26,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.blue),
+                                  strokeWidth: 3, color: AppColors.primaryBlue),
                             ),
                           )
-                        : GestureDetector(
+                        : Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: GestureDetector(
                             onTap: () {
-                              if (chatProvider
-                                  .inputController.text.isNotEmpty) {
+                              if (chatProvider.inputController.text.isNotEmpty) {
                                 chatProvider.sendQuery();
                               }
                             },
                             child: const CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.blue,
+                              radius: 22,
+                              backgroundColor: AppColors.primaryBlue,
                               child: Icon(Icons.send, color: Colors.white),
                             ),
                           ),
+                        ),
                   ),
                 ],
               ),
-            ),
+            )
           ],
         );
       },
@@ -285,7 +358,7 @@ class ChatContent extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isUser ? Colors.blueAccent : Colors.white,
+            color: isUser ? AppColors.accentTurquoise : Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
@@ -314,6 +387,7 @@ class ChatContent extends StatelessWidget {
             padding: const EdgeInsets.only(left: 10, top: 4),
             child: Wrap(
               spacing: 8.0,
+              runSpacing: 6.0,
               children: message.quickReplies!.map((reply) {
                 return ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -324,10 +398,18 @@ class ChatContent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20)),
                   ),
                   onPressed: () {
-                    provider.inputController.text = reply;
                     provider.sendQuery(text: reply, isQuickReply: true);
                   },
-                  child: Text(reply),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Text(
+                      reply,
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
                 );
               }).toList(),
             ),
@@ -346,7 +428,7 @@ class ConsultaScreen extends StatelessWidget {
       backgroundColor: AppColors.lightBackground,
       drawer: const AppDrawer(),
       appBar: Header(
-        title: 'Consulta con IA',
+        title: 'Consulta médica IA',
         leadingIcon:
             const Icon(Icons.medical_services, color: Colors.white, size: 30),
       ),
@@ -358,7 +440,7 @@ class ConsultaScreen extends StatelessWidget {
         },
         child: const ChatContent(),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: const AppBottomNavBar(),
     );
   }
 }
