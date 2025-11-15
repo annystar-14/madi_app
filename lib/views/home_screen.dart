@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medi_app/views/consulta.dart';
 import 'package:medi_app/views/historial_screen.dart';
+import 'package:medi_app/views/aprender_screen.dart';
+import 'package:medi_app/views/urgencias_screen.dart';
 import '../core/theme/app_colors.dart';
 import './reutilizable/header.dart';
 import 'package:medi_app/views/reutilizable/footer.dart';
@@ -123,7 +125,14 @@ class _HomeScreenState extends State<HomeScreen> {
               iconColor: const Color(0xFFE57373),
               title: 'Urgencias',
               subtitle: 'Cuando buscar ayuda',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UrgenciasScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 20),
             _buildInfoCard(
@@ -132,7 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
               iconColor: const Color(0xFFFFB74D),
               title: 'Consejos de salud',
               subtitle: 'Ventila tus espacios regularmente',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AprenderScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 300),
           ],
