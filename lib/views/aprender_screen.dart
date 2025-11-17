@@ -49,7 +49,7 @@ class _AprenderScreenState extends State<AprenderScreen> {
   final List<HealthCategory> _categories = [
     HealthCategory(
       id: 'respiratoria',
-      name: 'Salud Respiratoria',
+      name: 'Salud respiratoria',
       icon: Icons.air,
     ),
     HealthCategory(
@@ -59,7 +59,7 @@ class _AprenderScreenState extends State<AprenderScreen> {
     ),
     HealthCategory(
       id: 'mental',
-      name: 'Salud Mental',
+      name: 'Salud mental',
       icon: Icons.psychology,
     ),
     HealthCategory(
@@ -69,7 +69,7 @@ class _AprenderScreenState extends State<AprenderScreen> {
     ),
     HealthCategory(
       id: 'primeros_auxilios',
-      name: 'Primeros Auxilios',
+      name: 'Primeros auxilios',
       icon: Icons.medical_services,
     ),
   ];
@@ -374,9 +374,9 @@ class _AprenderScreenState extends State<AprenderScreen> {
       backgroundColor: AppColors.lightBackground,
       drawer: const AppDrawer(),
       appBar: Header(
-        title: 'Aprender',
+        title: 'Consejos',
         leadingIcon: const Icon(
-          Icons.book_outlined,
+          Icons.tips_and_updates_outlined,
           color: Colors.white,
           size: 30,
         ),
@@ -626,7 +626,7 @@ class _AprenderScreenState extends State<AprenderScreen> {
                                   Text(
                                     topic.title,
                                     style: const TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.textPrimary,
                                     ),
@@ -648,7 +648,7 @@ class _AprenderScreenState extends State<AprenderScreen> {
                         const Text(
                           'Información importante:',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -700,12 +700,12 @@ class _AprenderScreenState extends State<AprenderScreen> {
                                 color: AppColors.primaryBlue,
                                 size: 24,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   'Esta información es educativa. Ante cualquier duda o síntoma, consulta con un profesional de la salud.',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: AppColors.primaryBlue,
                                   ),
                                 ),

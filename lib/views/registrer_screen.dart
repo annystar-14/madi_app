@@ -125,10 +125,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 5),
               const Text(
-                'Orientación en enfermedades primarias',
+                'Orientación médica básica',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -253,10 +253,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 )
                               : const Text(
                                   'Registrarse',
-                                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 15),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

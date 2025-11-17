@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medi_app/controllers/auth_provider.dart';
 import 'package:medi_app/core/theme/app_colors.dart';
+import 'package:medi_app/views/Urgencias_Screen.dart';
 import 'package:medi_app/views/aprender_screen.dart';
 import 'package:medi_app/views/consulta.dart';
 import 'package:medi_app/views/historial_screen.dart';
@@ -100,6 +101,15 @@ class AppDrawer extends ConsumerWidget {
                   _navigateToScreen(context, const ConsultaScreen());
                 },
               ),
+               _buildDrawerItem(
+                context: context,
+                icon: Icons.warning_amber_rounded,
+                text: 'Urgencias',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigateToScreen(context, const UrgenciasScreen());
+                },
+              ),
               _buildDrawerItem(
                 context: context,
                 icon: Icons.history,
@@ -111,8 +121,8 @@ class AppDrawer extends ConsumerWidget {
               ),
               _buildDrawerItem(
                 context: context,
-                icon: Icons.book_outlined,
-                text: 'Aprender',
+                icon: Icons.tips_and_updates_outlined,
+                text: 'Consejos',
                 onTap: () {
                   Navigator.of(context).pop();
                   _navigateToScreen(context, const AprenderScreen());

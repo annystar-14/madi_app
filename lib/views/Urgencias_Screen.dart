@@ -29,7 +29,7 @@ class UrgenciasScreen extends StatelessWidget {
       appBar: Header(
         title: 'Urgencias',
         leadingIcon: const Icon(
-          Icons.emergency,
+          Icons.warning_amber_rounded,
           color: Colors.white,
           size: 30,
         ),
@@ -43,9 +43,9 @@ class UrgenciasScreen extends StatelessWidget {
               _buildEmergencySymptomsCard(),
               const SizedBox(height: 24),
               const Text(
-                'Números de emergencias',
+                'Número de emergencias',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
@@ -56,7 +56,7 @@ class UrgenciasScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: const AppBottomNavBar(),
     );
   }
 
@@ -143,7 +143,7 @@ class UrgenciasScreen extends StatelessWidget {
               const SizedBox(width: 12),
               const Expanded(
                 child: Text(
-                  'Síntomas de Emergencias',
+                  'Síntomas de emergencias',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -157,6 +157,10 @@ class UrgenciasScreen extends StatelessWidget {
           _buildSymptomItem('Dificultad severa para respirar'),
           _buildSymptomItem('Labios o cara azulados'),
           _buildSymptomItem('Fiebre mayor a 38.5° C persistente'),
+          _buildSymptomItem('Sangrado abundante que no se detiene'),
+          _buildSymptomItem('Incapacidad para hablar o moverse'),
+          _buildSymptomItem('Pérdida de conciencia o convulsiones'),
+          _buildSymptomItem('Dolor intenso y constante'),
         ],
       ),
     );
@@ -171,7 +175,7 @@ class UrgenciasScreen extends StatelessWidget {
           const Text(
             '• ',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               color: Color(0xFFEF5350),
               fontWeight: FontWeight.bold,
             ),
@@ -255,6 +259,14 @@ class UrgenciasScreen extends StatelessWidget {
                   color: Color(0xFFEF5350),
                 ),
               ),
+              const Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey,
+                size: 20,
+              ),
+            ),
             ],
           ),
         ),

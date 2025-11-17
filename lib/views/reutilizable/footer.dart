@@ -128,7 +128,7 @@ class AppBottomNavBar extends StatelessWidget {
           items: [
             _buildNavItem(icon: Icons.home_rounded, label: 'Inicio', itemIndex: 0),
             _buildNavItem(icon: Icons.history_rounded, label: 'Historial', itemIndex: 1),
-            _buildNavItem(icon: Icons.book_outlined, label: 'Aprender', itemIndex: 2),
+            _buildNavItem(icon: Icons.tips_and_updates_outlined, label: 'Consejos', itemIndex: 2),
             _buildNavItem(icon: Icons.account_circle_outlined, label: 'Perfil', itemIndex: 3),
           ],
         ),

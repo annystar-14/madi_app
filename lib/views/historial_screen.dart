@@ -51,7 +51,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
               children: <Widget>[
                 Text(
                   '¿Estás seguro de que quieres eliminar esta consulta?',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 10),
                 Text('Esta acción no se puede deshacer.',
@@ -86,133 +86,213 @@ class _HistorialScreenState extends State<HistorialScreen> {
 
   void _showRecipeDialog(
       BuildContext context, DateTime fecha, String sintomas, String diagnostico) {
-      final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(fecha);
+    final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(fecha);
+    final dateOnly = DateFormat('dd/MM/yyyy').format(fecha);
+    final timeOnly = DateFormat('HH:mm').format(fecha);
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              color: AppColors.lightBackground,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.primaryBlue, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryBlue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(
+                                Icons.receipt_long,
+                                color: AppColors.primaryBlue,
+                                size: 40,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Detalles de la consulta',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Fecha: $dateOnly | Hora: $timeOnly',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        
+                        // Sección Síntomas
+                        const Text(
+                          'Síntomas ingresados:',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildContentBox(sintomas),
+                        
+                        const SizedBox(height: 20),
+
+                        // Sección Diagnóstico
+                        const Text(
+                          'Diagnóstico por IA:',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildContentBox(diagnostico, isDiagnosis: true),
+
+                        const SizedBox(height: 20),
+
+                        // Advertencia
+                        _buildWarningBox(),
+                        
+                        const SizedBox(height: 20),
+
+                        // Botón de cerrar
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryBlue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Cerrar',
+                                style: TextStyle(
+                                    fontSize: 15, 
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        'lib/public/logo.png',
-                        height: 30,
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'MediApp',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.primaryBlue),
-                      ),
-                      const Spacer(),
-                      Text(
-                        formattedDate,
-                        style: const TextStyle(
-                            fontSize: 14, fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ),
-                  const Divider(
-                      height: 25, thickness: 2, color: AppColors.primaryBlue),
-                  const Text(
-                    'Síntomas ingresados:',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: AppColors.accentTurquoise),
-                    ),
-                    child: Text(
-                      sintomas,
-                      style: const TextStyle(
-                          fontSize: 15, color: AppColors.textSecondary),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Diagnóstico por IA:',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.accentTurquoise),
-                    ),
-                    child: Text(
-                      diagnostico,
-                      style: const TextStyle(
-                          fontSize: 15,
-                          color: AppColors.textPrimary,
-                          height: 1.5),
-                      textAlign: TextAlign.justify,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Cerrar',
-                          style: TextStyle(fontSize: 14, color: Colors.white)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Center(
-                      child: Text(
-                    'Esto no sustituye el consejo médico profesional.',
-                    style: TextStyle(color: Colors.red, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  )),
-                ],
+          );
+        },
+      ),
+    );
+  }
+  
+  // Widget de utilidad para los cuadros de contenido
+  Widget _buildContentBox(String content, {bool isDiagnosis = false}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: isDiagnosis ? AppColors.accentTurquoise.withOpacity(0.1) : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDiagnosis ? AppColors.accentTurquoise : Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        content,
+        style: TextStyle(
+          fontSize: 15,
+          color: AppColors.textPrimary,
+          height: 1.5,
+          fontWeight: isDiagnosis ? FontWeight.w500 : FontWeight.normal,
+        ),
+        textAlign: TextAlign.justify,
+      ),
+    );
+  }
+
+  // Widget de utilidad para la caja de advertencia
+  Widget _buildWarningBox() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.red.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.redAccent,
+            size: 24,
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Importante: La información generada no sustituye la evaluación de un profesional de la salud.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.redAccent,
               ),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -222,7 +302,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
       backgroundColor: AppColors.lightBackground,
       drawer: const AppDrawer(),
       appBar: Header(
-        title: 'Diagnósticos',
+        title: 'Consultas',
         leadingIcon: const Icon(Icons.history, color: Colors.white, size: 30),
       ),
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -244,7 +324,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
                     const Text(
                       'Aún no tienes consultas registradas.',
                       style:
-                          TextStyle(fontSize: 18, color: AppColors.textSecondary),
+                          TextStyle(fontSize: 17, color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 30),
@@ -268,7 +348,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
                       label: const Text(
                         'Iniciar nueva consulta',
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             color: Colors.white,
                             fontWeight: FontWeight.bold),
                       ),
@@ -296,7 +376,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
               final timeOnly = DateFormat('HH:mm').format(fecha);
 
               return Card(
-                margin: const EdgeInsets.only(bottom: 15),
+                margin: const EdgeInsets.only(bottom: 22),
                 elevation: 8,
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -314,13 +394,13 @@ class _HistorialScreenState extends State<HistorialScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.assignment, 
+                            const Icon(Icons.receipt_long, 
                                 color: AppColors.primaryBlue, size: 28),
                             const SizedBox(width: 10),
                             Text(
                               'Consulta: $dateOnly',
                               style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primaryBlue),
                             ),
@@ -368,7 +448,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
                           children: [
                             _ActionChip(
                               icon: Icons.visibility,
-                              text: 'Ver receta',
+                              text: 'Ver diagnóstico',
                               color: AppColors.accentTurquoise,
                               onTap: () {
                                 _showRecipeDialog(
@@ -406,7 +486,7 @@ class _HistorialScreenState extends State<HistorialScreen> {
         },
         icon: const Icon(Icons.add_comment, color: Colors.white),
         label: const Text('Nueva consulta',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontSize: 16)),
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
     );

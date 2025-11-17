@@ -124,7 +124,7 @@ Future<void> _selectDate(BuildContext context) async {
                 'Registro de información personal',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -206,7 +206,7 @@ Future<void> _selectDate(BuildContext context) async {
                           ),
                           validator: null,
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 25),
 
                         // Botón Registrar
                         ElevatedButton(
@@ -230,7 +230,7 @@ Future<void> _selectDate(BuildContext context) async {
                                 )
                               : const Text(
                                   'Guardar datos',
-                                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                         ), 
                       ],

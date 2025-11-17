@@ -10,7 +10,7 @@ import './reutilizable/footer.dart';
 import 'package:medi_app/views/reutilizable/sideMenu.dart';
 
 const String _apiKey = "AIzaSyCatsvDrs6Z5xdSGEXb7D4wtPcoWoXMqiY"; 
-const String _apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$_apiKey";
+const String _apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=$_apiKey";
 
 class Message {
   final String text;
@@ -110,7 +110,7 @@ class ChatProvider extends ChangeNotifier {
         "Actúa como un asistente de triaje de síntomas no médico. Tu objetivo es guiar al usuario a través de preguntas de seguimiento o proporcionar una lista de posibles afecciones y consejos de autocuidado. NUNCA diagnostiques oficialmente una enfermedad. Siempre incluye una ADVERTENCIA estricta. Responde SIEMPRE con una única estructura JSON. Usa SOLO las claves: 'status', 'advertencia', 'data'. Para 'FOLLOW_UP', 'data' debe tener 'question' y 'options'. Para 'DIAGNOSIS_READY', 'data' debe tener 'conditions', donde CADA condición DEBE incluir los campos de 'name' que es el nombre de la afección, 'description' que la descripcion de la afección, y 'treatment_advice' que son los consejos de autocuidado.";
 
     final userInstruction =
-        "Analiza esta conversación y la última entrada del usuario. Si es la primera interacción o si la información es insuficiente (ej: solo un síntoma vago), genera una pregunta de seguimiento relevante con tres opciones de respuesta. Si la información ingresada no esta relacionada con ningun sintoma recuerdale al usuario tu proposito amablemente sobre detectar afecciones con base a sintomas ingresados por el usaurio. Si la información es suficiente, genera un diagnóstico de posibles afecciones (máximo 3) con el nombre de la posible afección junto con sus descripciones y consejos de tratamiento/autocuidado. Historia: \n$conversationHistory\n\nÚltima entrada: $userQuery";
+        "Analiza esta conversación y la última entrada del usuario. Si es la primera interacción o si la información es insuficiente (ej: solo un síntoma muy vago), genera una pregunta de seguimiento relevante con tres opciones de respuesta. Si la información ingresada no esta relacionada con ningun síntoma recuerdale al usuario tu proposito amablemente sobre detectar afecciones con base a síntomas ingresados por el usuario. Si la información es suficiente (minimo 5 síntomas), genera un diagnóstico de posibles afecciones (máximo 3) con el nombre de la posible afección junto con sus descripciones y consejos de tratamiento/autocuidado. Historia: \n$conversationHistory\n\nÚltima entrada: $userQuery";
 
     final payload = json.encode({
       "contents": [
@@ -220,7 +220,7 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       _messages.add(Message(
           text:
-              "Error de conexión o de la IA: Por favor, intenta de nuevo.",
+              "Error de conexión o de la IA: Por favor, intenta de nuevo. $e",
           isUser: false));
     }
 
@@ -377,7 +377,7 @@ class ChatContent extends StatelessWidget {
             message.text,
             style: TextStyle(
               color: isUser ? Colors.white : Colors.black87,
-              fontSize: 18,
+              fontSize: 17,
               height: 1.4,
             ),
           ),

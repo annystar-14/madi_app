@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
               iconBgColor: const Color(0xFFFFF8E1),
               iconColor: const Color(0xFFFFB74D),
               title: 'Consejos de salud',
-              subtitle: 'Ventila tus espacios regularmente',
+              subtitle: 'Aprende más sobre prevención y bienestar',
               onTap: () {
                 Navigator.push(
                   context,
@@ -150,7 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            const SizedBox(height: 300),
           ],
         ),
       ),
@@ -189,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Evalúa tus síntomas ahora',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     color: Colors.white.withOpacity(0.9),
                   ),
                 ),
@@ -213,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: const Text(
                     'Iniciar evaluación',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                   ),
                 ),
               ],
@@ -273,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(title,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       )),
@@ -281,13 +280,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
                 ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey,
+                size: 20,
               ),
             ),
           ],

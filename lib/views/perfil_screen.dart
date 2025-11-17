@@ -84,7 +84,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       'Datos personales',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryBlue,
                       ),
@@ -228,14 +228,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             )
                           : const Text(
                               'Guardar datos',
-                              style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                     ),
                     
                     const SizedBox(height: 10),
                     TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancelar', style: TextStyle(color: AppColors.primaryBlue, fontSize: 18)),
+                        child: const Text('Cancelar', style: TextStyle(color: AppColors.primaryBlue, fontSize: 17)),
                     ),
                   ],
                 ),
@@ -253,7 +253,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       backgroundColor: AppColors.lightBackground,
       drawer: const AppDrawer(),
       appBar: Header(
-        title: 'Perfil',
+        title: 'Mi perfil',
         leadingIcon: const Icon(
           Icons.account_circle_outlined,
           color: Colors.white,
@@ -277,7 +277,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       '¡Parece que aún no tienes información registrada!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 17,
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -301,7 +301,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       icon: const Icon(Icons.add_circle_outline, color: Colors.white),
                       label: const Text(
                         'Agregar información',
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -330,7 +330,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     ),
                     child: const Text(
                       'Editar datos',
-                      style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -352,7 +352,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           'Mi información',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primaryBlue,
                           ),
@@ -441,7 +441,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -449,7 +449,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),

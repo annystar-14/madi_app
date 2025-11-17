@@ -116,10 +116,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 5),
               const Text(
-                'Orientación en enfermedades primarias',
+                'Orientación médica básica',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -222,13 +222,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               : const Text(
                                   'Iniciar sesión',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 18,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -270,7 +270,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 'Tus datos están protegidos por encriptación',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
               ),
